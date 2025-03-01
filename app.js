@@ -3,6 +3,8 @@ const morgan = require("morgan");
 const jwt = require("jsonwebtoken");
 const mySqlPool = require("./config/db");
 const restaurantRoutes = require("./routes/restaurantRoutes");
+const categoryRoutes = require("./routes/categoryRoutes");
+const restaurantCategoryRoutes = require("./routes/restaurantCategoryRoutes");
 
 require("dotenv").config();
 
@@ -14,6 +16,8 @@ app.use(morgan("dev"));
 
 //Routes
 app.use("/restaurants", restaurantRoutes);
+app.use("/categories", categoryRoutes);
+app.use("/rc", restaurantCategoryRoutes);
 
 //PORT
 const PORT = process.env.PORT || 5000;
