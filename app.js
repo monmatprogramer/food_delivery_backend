@@ -5,6 +5,7 @@ const mySqlPool = require("./config/db");
 const restaurantRoutes = require("./routes/restaurantRoutes");
 const categoryRoutes = require("./routes/categoryRoutes");
 const restaurantCategoryRoutes = require("./routes/restaurantCategoryRoutes");
+const tagRoutes = require("./routes/tageRoutes");
 
 require("dotenv").config();
 
@@ -18,6 +19,7 @@ app.use(morgan("dev"));
 app.use("/restaurants", restaurantRoutes);
 app.use("/categories", categoryRoutes);
 app.use("/rc", restaurantCategoryRoutes);
+app.use("/tags", tagRoutes);
 
 //PORT
 const PORT = process.env.PORT || 5000;

@@ -1,27 +1,25 @@
 const mysqlPool = require("../config/db");
 
-// Create getAllRC controller
-const getAllRC = async (req, res) => {
+//Get all tag
+const getAllTags = async (req, res) => {
   try {
     const [rows] = await mysqlPool.query(
       `
-            SELECT * FROM restaurant_category
+            SELECT * FROM tag
         `
     );
-    //Check it is exist or not
+
     if (rows.length === 0) {
-      // 404 : Not found resource
       return res.status(404).send({
-        sucess: false,
-        message: "Not found restaurant_category resouces",
-      });
+        success: false,
+        message: "Not found tags resouce",
+      },);
     }
 
-    // If it is found
     res.status(200).send({
-      success: true,
-      message: "All restaurant_category",
-      data: rows,
+        success: true,
+        message: "All tages",
+        data: rows,
     });
   } catch (error) {
     console.log(`${error}`.red);
@@ -33,4 +31,4 @@ const getAllRC = async (req, res) => {
   }
 };
 
-module.exports = { getAllRC };
+module.exports = { getAllTags };
