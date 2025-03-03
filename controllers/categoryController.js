@@ -16,7 +16,7 @@ const getAllCategories = async (req, res) => {
     res.status(200).send({
       success: true,
       message: "All categories",
-      result: rows,
+      results: rows,
     });
   } catch (error) {
     console.log(`${error}`.red);

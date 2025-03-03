@@ -13,13 +13,13 @@ const getAllTags = async (req, res) => {
       return res.status(404).send({
         success: false,
         message: "Not found tags resouce",
-      },);
+      });
     }
 
     res.status(200).send({
-        success: true,
-        message: "All tages",
-        results: rows,
+      success: true,
+      message: "All tages",
+      results: rows,
     });
   } catch (error) {
     console.log(`${error}`.red);
