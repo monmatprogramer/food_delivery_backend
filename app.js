@@ -15,6 +15,11 @@ const app = express();
 app.use(express.json());
 app.use(morgan("dev"));
 
+//Routes
+app.use("/restaurants", restaurantRoutes);
+app.use("/categories", categoryRoutes);
+app.use("/rc", restaurantCategoryRoutes);
+app.use("/tags", tagRoutes);
 //Not found routes
 app.use((req, res) => {
   res.status(404).json({
@@ -23,13 +28,6 @@ app.use((req, res) => {
     path: req.originalUrl,
   });
 });
-
-//Routes
-app.use("/restaurants", restaurantRoutes);
-app.use("/categories", categoryRoutes);
-app.use("/rc", restaurantCategoryRoutes);
-app.use("/tags", tagRoutes);
-
 //PORT
 const PORT = process.env.PORT || 5000;
 
