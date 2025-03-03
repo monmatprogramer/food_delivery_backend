@@ -19,7 +19,7 @@ const getAllTags = async (req, res) => {
     res.status(200).send({
         success: true,
         message: "All tages",
-        data: rows,
+        results: rows,
     });
   } catch (error) {
     console.log(`${error}`.red);

@@ -22,7 +22,7 @@ const getAllRestaurants = async (req, res) => {
     res.status(200).send({
       success: true,
       message: "All restaurants",
-      data: rows,
+      results: rows,
     });
   } catch (error) {
     console.log(`${error}`.red);
