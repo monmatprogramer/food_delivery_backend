@@ -15,6 +15,15 @@ const app = express();
 app.use(express.json());
 app.use(morgan("dev"));
 
+//Not found routes
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    message: "Route not found",
+    path: req.originalUrl,
+  });
+});
+
 //Routes
 app.use("/restaurants", restaurantRoutes);
 app.use("/categories", categoryRoutes);
