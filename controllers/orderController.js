@@ -15,6 +15,13 @@ const createNewOrder = async (req, res) => {
         "Please provide name, address, phone, paymentMethod, items and totalPrice",
     });
   }
+  if (!Array.isArray(items) || items.length === 0) {
+    return res.status(400).json({
+      success: false,
+      message: "Items must be a non-empty array",
+    });
+  }
+
   // Strat a transaction
   const connection = await mySqlPool.getConnection();
   try {
@@ -23,14 +30,13 @@ const createNewOrder = async (req, res) => {
       `INSERT INTO orders (customer_name, address, phone, payment_method, total_price) VALUES(?,?,?,?,?)`,
       [name, address, phone, paymentMethod, totalPrice]
     );
+
     const orderId = orderResult.insertId;
-    console.log(items);
     for (const item of items) {
       await connection.query(
         `INSERT INTO order_items (order_id, menu_item_id, name, price, quantity) VALUES (?, ?, ?, ?, ?)`,
         [orderId, item.id, item.name, item.price, item.quantity]
       );
-      console.log("Finish: ", item.id);
     }
     console.log("-------");
     await connection.commit();
