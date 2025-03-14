@@ -52,17 +52,54 @@ const getCategoryById = async (req, res) => {
     });
   }
 };
-const createNewCategory = async(req,res) =>{
-  console.log("req.params: ",req.params);
+function isString(value) {
+  return typeof value === "string";
+}
+const createNewCategory = async (req, res) => {
   //Two fields : name, icon
-   const {name, icon} = req.params;
-   console.log("name: ",name, "icon: ",icon);
-   res.status(200).json(
-    {
+  try {
+    const { name, icon } = req.body;
+    if (!isString(name) || !isString(icon)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid type of [name, icon]",
+        results: ["No data"],
+      });
+    }
+    if (
+      !name ||
+      !icon ||
+      name === null ||
+      icon === null ||
+      name.length === 0 ||
+      icon.length === 0 ||
+      name.trim() === "" ||
+      icon.trim() === ""
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Category [name, icon] is required",
+        results: ["No data"],
+      });
+    }
+    // Insert data into database
+    const [result] = await mySqlPool.query(
+      "INSERT INTO category (name,icon) VALUES(?,?)",
+      [name, icon]
+    );
+    //result.insertId
+    res.status(200).json({
       success: true,
       message: "Create a category",
-      results: [name,icon],
-    }
-   );
-}
-module.exports = { getAllCategories, getCategoryById,createNewCategory };
+      results: `Insert ID: ${result.insertId}`,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: e.message,
+      results: "No data",
+    });
+  }
+};
+module.exports = { getAllCategories, getCategoryById, createNewCategory };
