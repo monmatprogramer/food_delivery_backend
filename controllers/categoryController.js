@@ -52,53 +52,58 @@ const getCategoryById = async (req, res) => {
     });
   }
 };
-function isString(value) {
-  return typeof value === "string";
+function isValidString(value) {
+  return typeof value === "string" && value.trim().length > 0;
 }
 const createNewCategory = async (req, res) => {
   //Two fields : name, icon
   try {
     const { name, icon } = req.body;
-    if (!isString(name) || !isString(icon)) {
+    if (!isValidString(name) || !isValidString(icon)) {
       return res.status(400).json({
         success: false,
-        message: "Invalid type of [name, icon]",
-        results: ["No data"],
+        message:
+          "Category name and Icon are required and must be non-empty strings",
+        results: null,
       });
     }
-    if (
-      !name ||
-      !icon ||
-      name === null ||
-      icon === null ||
-      name.length === 0 ||
-      icon.length === 0 ||
-      name.trim() === "" ||
-      icon.trim() === ""
-    ) {
-      return res.status(400).json({
+    const trimmedName = name.trim();
+    const trimmedIcon = name.trim();
+
+    const [existingCategories] = await mySqlPool.query(
+      "SELECT * FROM category WHERE name = ?",
+      [trimmedName]
+    );
+
+    if (existingCategories.length > 0) {
+      return res.status(409).json({
         success: false,
-        message: "Category [name, icon] is required",
-        results: ["No data"],
+        message: "This category already exists",
+        result: null,
       });
     }
+
     // Insert data into database
     const [result] = await mySqlPool.query(
       "INSERT INTO category (name,icon) VALUES(?,?)",
-      [name, icon]
+      [trimmedName, trimmedIcon]
     );
     //result.insertId
-    res.status(200).json({
+    res.status(201).json({
       success: true,
-      message: "Create a category",
-      results: `Insert ID: ${result.insertId}`,
+      message: "Category created successfully",
+      results: {
+        id: result.insertId,
+        name: trimmedName,
+        icon: trimmedIcon,
+      },
     });
   } catch (error) {
-    console.error(error);
+    console.error("Error creating category: ", error);
     return res.status(500).json({
       success: false,
-      message: e.message,
-      results: "No data",
+      message: error.message || "Internal server error",
+      results: null,
     });
   }
 };
