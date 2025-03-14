@@ -30,7 +30,7 @@ const getAllCategories = async (req, res) => {
 const getCategoryById = async (req, res) => {
   try {
     console.log("id: ", req.params.id);
-    const [rows] = await mysqlPool.query(
+    const [rows] = await mySqlPool.query(
       "SELECT * FROM category WHERE id = ?",
       [req.params.id]
     );
