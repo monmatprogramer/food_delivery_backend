@@ -29,7 +29,6 @@ const getAllCategories = async (req, res) => {
 };
 const getCategoryById = async (req, res) => {
   try {
-    console.log("id: ", req.params.id);
     const [rows] = await mySqlPool.query(
       "SELECT * FROM category WHERE id = ?",
       [req.params.id]
@@ -53,4 +52,17 @@ const getCategoryById = async (req, res) => {
     });
   }
 };
-module.exports = { getAllCategories, getCategoryById };
+const createNewCategory = async(req,res) =>{
+  console.log("req.params: ",req.params);
+  //Two fields : name, icon
+   const {name, icon} = req.params;
+   console.log("name: ",name, "icon: ",icon);
+   res.status(200).json(
+    {
+      success: true,
+      message: "Create a category",
+      results: [name,icon],
+    }
+   );
+}
+module.exports = { getAllCategories, getCategoryById,createNewCategory };
