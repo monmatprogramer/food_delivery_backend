@@ -6,6 +6,7 @@ const restaurantRoutes = require("./routes/restaurantRoutes");
 const categoryRoutes = require("./routes/categoryRoutes");
 const restaurantCategoryRoutes = require("./routes/restaurantCategoryRoutes");
 const tagRoutes = require("./routes/tageRoutes");
+const bodyParser = require("body-parser");
 
 require("dotenv").config();
 
@@ -14,12 +15,15 @@ const app = express();
 //Middleware
 app.use(express.json());
 app.use(morgan("dev"));
+// app.use(cors());
+// app.use(bodyParser.json);
 
 //Routes
 app.use("/restaurants", restaurantRoutes);
 app.use("/categories", categoryRoutes);
 app.use("/rc", restaurantCategoryRoutes);
 app.use("/tags", tagRoutes);
+
 //Not found routes
 app.use((req, res) => {
   res.status(404).json({
