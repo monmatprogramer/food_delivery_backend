@@ -33,6 +33,25 @@ const createNewOrder = async (req, res) => {
 
     const orderId = orderResult.insertId;
     for (const item of items) {
+      // Check if item has all required properties
+      if (
+        !item.id ||
+        !item.name ||
+        item.price === undefined ||
+        item.quantity === undefined
+      ) {
+        throw new Error(`Invalid item data: ${JSON.stringify(item)}`);
+      }
+      // Make sure price and quanity are numbers
+      const price = parseFloat(item.price);
+      const quantity = parseFloat(item.quantity);
+      if (isNaN(price) || isNaN(quantity)) {
+        throw new Error(
+          `Invalid price or quantity for item: ${JSON.stringify(item)}`
+        );
+      }
+
+      // Insert the order item
       await connection.query(
         `INSERT INTO order_items (order_id, menu_item_id, name, price, quantity) VALUES (?, ?, ?, ?, ?)`,
         [orderId, item.id, item.name, item.price, item.quantity]
@@ -58,7 +77,7 @@ const createNewOrder = async (req, res) => {
     await connection.rollback();
     res.status(500).json({
       success: false,
-      message: "Server error",
+      message: "Server error" + error.message,
     });
   } finally {
     connection.release();
