@@ -2,9 +2,85 @@ const mySqlPool = require("../config/db");
 
 const getAllOrder = async (req, res) => {
   try {
-    // const [orders] = await mySqlPool.query();
-  } catch (error) {}
+    const [orders] = await mySqlPool.query(
+      `
+        SELECT * FROM orders ORDER BY created_at DESC
+      `
+    );
+    //[order]: [{...},{...},{...},{...},{...},{...}]
+    // if there are no orders, return immediately
+    if (orders.length === 0) {
+      return res.json({
+        success: true,
+        results: orders,
+      });
+    }
+    // Get an array of order IDs from the fetched orders
+    const orderIds = orders.map((order) => order.id);
+
+    // Fetch all order_items for orders in on go
+    const [orderItems] = await mySqlPool.query(
+      `SELECT * FROM order_items WHERE order_id IN (?) ORDER BY order_id DESC`,
+      [orderIds] //? is parameterized queries
+    );
+
+    // Group order items by order_id for easy lookup
+    const itemsByOrderId = orderItems.reduce((acc, item) => {
+      if (!acc[item.order_id]) {
+        acc[item.order_id] = [];
+      }
+      acc[item.order_id].push(item);
+      return acc;
+    }, {});
+
+    // Attach items to their corresponding orders
+    orders.forEach((order) => {
+      order.items = itemsByOrderId[order.id] || [];
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Get all order",
+      results: orders,
+    });
+  } catch (error) {
+    console.error("Error occurred while fetching orders: ", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
 };
+const getAllOrderById = async (req, res) => {
+  try {
+    const [orders] = await mySqlPool.query(
+      `
+        SELECT * FROM orders WHERE id = ?
+      `,
+      [req.params.id]
+    );
+    //If it empty
+    if (orders.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Order not found",
+      });
+    }
+    const order = orders[0];
+    // Get items for the order
+    const [items] = await mySqlPool.query(
+      `SELECT * FROM order_items WHERE order_id = ?`,
+      [order.id]
+    );
+    order.items = items;
+    res.status(200).json({
+      success: true,
+      message: "Get order by ID",
+      results: order,
+    });
+  } catch (error) {
+    console.error("Error occurred while fetching orders by ID: ", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
 const createNewOrder = async (req, res) => {
   const { name, address, phone, paymentMethod, items, totalPrice } = req.body;
 
@@ -57,7 +133,7 @@ const createNewOrder = async (req, res) => {
         [orderId, item.id, item.name, item.price, item.quantity]
       );
     }
-    console.log("-------");
+
     await connection.commit();
     // Get the created order with items
     const [newOrder] = await mySqlPool.query(
@@ -84,4 +160,4 @@ const createNewOrder = async (req, res) => {
   }
 };
 
-module.exports = { getAllOrder, createNewOrder };
+module.exports = { getAllOrder, createNewOrder, getAllOrderById };
